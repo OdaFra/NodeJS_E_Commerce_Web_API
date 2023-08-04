@@ -7,6 +7,7 @@ require('dotenv/config');
 const api = process.env.API_URL;
 
 //Milddware
+//Instancia necesaria para aplicar parseo de json
 
 app.use(express.json())
 
@@ -14,6 +15,7 @@ app.get(`${api}/products`, (req, res)=>{
     const products ={
         id: 1, 
         name: 'Notebook',
+        precio:1200,
         iamge:'notebook_url'
     }
 res.send(products)
