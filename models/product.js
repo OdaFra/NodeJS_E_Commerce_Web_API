@@ -26,16 +26,16 @@ const productSchema = mongoose.Schema({
   ],
   brand: {
     type: String,
-    default: ''
+    default: "",
   },
   price: {
     type: Number,
-    default: 0
+    default: 0,
   },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
-    required: true
+    ref: "Category",
+    required: true,
   },
   countInStock: {
     type: Number,
@@ -45,20 +45,21 @@ const productSchema = mongoose.Schema({
   },
   rating: {
     type: Number,
-    default: 0
+    default: 0,
   },
   numReviews: {
     type: String,
-    default: 0
+    default: 0,
   },
   isFeatured: {
     type: Boolean,
-    default: false
+    default: false,
   },
   dateCreated: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
+  
 });
 
 //En base al schema generado, creamos el modelo a ser exportado
