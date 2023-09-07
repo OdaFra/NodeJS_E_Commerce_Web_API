@@ -21,6 +21,7 @@ app.use(morgan("tiny"));
 
 
 //Routers
+
 const categoriesRoutes=require("./routers/categories");
 const productsRouter = require("./routers/products");
 const userRoutes=require("./routers/users");
