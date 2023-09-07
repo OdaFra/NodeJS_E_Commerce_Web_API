@@ -20,8 +20,7 @@ router.post("/", async (req, res) => {
 
   category = await category.save();
 
-  if (!category) 
-    return res.status(404).send("The category cannot be created!");
+  if (!category) return res.status(404).send("The category cannot be created!");
 
     res.send(category);
 });
