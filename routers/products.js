@@ -2,7 +2,7 @@ const express = require("express");
 const { Product } = require("../models/product");
 const { Category } = require("../models/category");
 const router = express.Router();
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 router.get(`/`, async (req, res) => {
   const productList = await Product.find().populate("category"); //.select('name image');
@@ -50,8 +50,6 @@ router.post(`/`, async (req, res) => {
   if (!product) return res.status(500).send("The product cannot be created");
 
   res.send(product);
-
- 
 });
 
 router.put("/:id", async (req, res) => {
@@ -110,15 +108,39 @@ router.delete("/:id", (req, res) => {
 });
 
 router.get(`/get/count`, async (req, res) => {
-  
-    const productCount = await Product.countDocuments({});
-    if (!productCount) {
-      res.status(500).json({
-        success: false,
-      });
-    }
-    res.send({ productCount: productCount });  
-  
+  const productCount = await Product.countDocuments({});
+  if (!productCount) {
+    res.status(500).json({
+      success: false,
+    });
+  }
+  res.send({ productCount: productCount });
+});
+
+router.get(`/get/featured`, async (req, res) => {
+  const products = await Product.find({
+    isFeatured: true,
+  });
+  if (!products) {
+    res.status(500).json({
+      success: false,
+    });
+  }
+  res.send(products);
+});
+
+router.get(`/get/featured/:count`, async (req, res) => {
+  const count = req.params.count ? req.params.count : 0;
+
+  const products = await Product.find({
+    isFeatured: true,
+  }).limit(+count);
+  if (!products) {
+    res.status(500).json({
+      success: false,
+    });
+  }
+  res.send(products);
 });
 
 module.exports = router;
