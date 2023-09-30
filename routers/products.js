@@ -5,7 +5,18 @@ const router = express.Router();
 
 
 router.get(`/`, async (req, res) =>  {
-    const productList = await Product.find();
+    const productList = await Product.find().select('name image');
+    if(!productList){
+      res.status(500).json({
+        success:false
+      })
+    }
+    res.send(productList)
+
+  });
+
+  router.get(`/:id`, async (req, res) =>  {
+    const productList = await Product.findById(req.params.id);
     if(!productList){
       res.status(500).json({
         success:false
