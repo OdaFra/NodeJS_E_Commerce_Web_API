@@ -5,7 +5,14 @@ const router = express.Router();
 const mongoose = require("mongoose");
 
 router.get(`/`, async (req, res) => {
-  const productList = await Product.find().populate("category"); //.select('name image');
+  //Ejemplo de query parameters http://localhost:3000/api/product?category=2345,2345
+  let filter = {};
+  if (req.query.categories) {
+    filter = { category: req.query.categories.split(",") };
+  }
+
+  const productList = await Product.find(filter).populate("category"); //.select('name image');
+
   if (!productList) {
     res.status(500).json({
       success: false,
