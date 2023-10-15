@@ -1,6 +1,8 @@
 const { User } = require("../models/user");
 const express = require("express");
 const router = express.Router();
+const bcrypt = require('bcryptjs');
+
 
 router.get(`/`, async (req, res) => {
   const userList = await User.find();
@@ -16,7 +18,7 @@ router.post("/", async (req, res) => {
     name: req.body.name,
     email: req.body.email,
     //color:req.body.color,
-    passwordHash: req.body.passwordHash,
+    passwordHash: bcrypt.hashSync(req.body.password,10),
     phone: req.body.phone,
     isAdmin: req.body.isAdmin,
     apartment: req.body.apartment,
