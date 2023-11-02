@@ -17,33 +17,31 @@ const connectMongodb = process.env.CONNECTION_STRING;
 app.use(cors());
 app.options("*", cors());
 
-
 app.use(express.json());
 app.use(morgan("tiny"));
 app.use(authJwt());
-app.use(errorHandler)
+app.use(errorHandler);
 
 //Routers
 
-const categoriesRoutes=require("./routers/categories");
+const categoriesRoutes = require("./routers/categories");
 const productsRouter = require("./routers/products");
-const userRoutes=require("./routers/users");
-const ordersRoutes=require("./routers/ordes");
-
-
+const userRoutes = require("./routers/users");
+const ordersRoutes = require("./routers/ordes");
 
 app.use(`${api}/categories`, categoriesRoutes);
 app.use(`${api}/products`, productsRouter);
 app.use(`${api}/users`, userRoutes);
 app.use(`${api}/orders`, ordersRoutes);
 
-
-mongoose.connect(connectMongodb).then(() => {
-  console.log('Database Connection is ready..!')
-}).catch((err) => {
-  console.log(err)
-});
-
+mongoose
+  .connect(connectMongodb)
+  .then(() => {
+    console.log("Database Connection is ready..!");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 app.listen(3000, () => {
   console.log(api);
