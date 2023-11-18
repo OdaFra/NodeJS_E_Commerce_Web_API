@@ -47,7 +47,7 @@ router.post("/", async (req, res) => {
       icon: req.body.icon,
       color: req.body.color,
     },
-    { new: true }
+    {new: true }
   );
 
   category = await category.save();
