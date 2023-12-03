@@ -94,9 +94,9 @@ router.delete("/:id", (req, res) => {
   Order.findByIdAndRemove(req.params.id)
     .then(async (order) => {
       if (order) {
-        await order.orderItem.map(async orderItem=>{
-          await orderItem.findByIdAndRemove(orderItem)
-        })
+        await Promise.all(order.orderItems.map(async (orderItem)=>{
+          await OrderItems.findByIdAndRemove(orderItem._id)
+        }));
 
         return res.status(200).json({
           success: true,
