@@ -34,7 +34,7 @@ router.get(`/:id`, async (req, res) => {
 // Add
 router.post("/", async (req, res) => {
   try {
-    const orderItemsIds = await Promise.all(
+    const orderItemIdsResolved = await Promise.all(
       req.body.orderItems.map(async (orderItem) => {
         let newOrderItem = new OrderItems({
           quantity: orderItem.quantity,
@@ -47,10 +47,38 @@ router.post("/", async (req, res) => {
 
     console.log(`El valor es orderItems es ${req.body.orderItems}`);
 
-    //  const orderItemsIdsResolved = await orderItemsIds
+    //  const orderItemIdsResolvedResolved = await orderItemIdsResolved
+
+    if (orderItemIdsResolved.length === 0) {
+      return res.status(400).send("No order items provided!");
+    }
+
+    const totalPrices = await Promise.all(
+      orderItemIdsResolved.map(async (orderItemId) => {
+        try {
+          const orderItem = await OrderItems.findById(orderItemId).populate(
+            "product",
+            "price"
+          );
+
+          if (!orderItem) {
+            throw new Error("Order item not found!");
+          }
+          const totalPrice = orderItem.product.price * orderItem.quantity;
+          return totalPrice;
+        } catch (error) {
+          console.error("Error calculating totalPrice:", error.message);
+          throw error;
+        }
+      })
+    );
+
+    const totalPrice = totalPrices.reduce((a, b) => a + b, 0);
+
+    console.log(totalPrices);
 
     let order = new Order({
-      orderItems: orderItemsIds,
+      orderItems: orderItemIdsResolved,
       shippingAddress1: req.body.shippingAddress1,
       shippingAddress2: req.body.shippingAddress2,
       city: req.body.city,
@@ -58,7 +86,7 @@ router.post("/", async (req, res) => {
       country: req.body.country,
       phone: req.body.phone,
       status: req.body.status,
-      totalPrice: req.body.totalPrice,
+      totalPrice: totalPrice,
       user: req.body.user,
     });
 
@@ -94,9 +122,11 @@ router.delete("/:id", (req, res) => {
   Order.findByIdAndRemove(req.params.id)
     .then(async (order) => {
       if (order) {
-        await Promise.all(order.orderItems.map(async (orderItem)=>{
-          await OrderItems.findByIdAndRemove(orderItem._id)
-        }));
+        await Promise.all(
+          order.orderItems.map(async (orderItem) => {
+            await OrderItems.findByIdAndRemove(orderItem._id);
+          })
+        );
 
         return res.status(200).json({
           success: true,
@@ -115,6 +145,19 @@ router.delete("/:id", (req, res) => {
         error: err,
       });
     });
+});
+
+//
+router.get("/get/totalsales", async (req, res) => {
+  const totalSales = await Order.aggregate([
+    { $group: { _id: null, totalSales: { $sum: "$totalPrice" } } },
+  ]);
+  if (!totalSales) {
+    return res.status(400).send("The order sales cannot be generated");
+  }
+  res.send({
+    totalSales: totalSales.pop().totalSales,
+  });
 });
 
 module.exports = router;
