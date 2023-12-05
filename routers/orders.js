@@ -147,7 +147,7 @@ router.delete("/:id", (req, res) => {
     });
 });
 
-//
+//GET TotalSales
 router.get("/get/totalsales", async (req, res) => {
   const totalSales = await Order.aggregate([
     { $group: { _id: null, totalSales: { $sum: "$totalPrice" } } },
@@ -159,5 +159,17 @@ router.get("/get/totalsales", async (req, res) => {
     totalSales: totalSales.pop().totalSales,
   });
 });
+
+//Get count
+router.get(`/get/count`, async (req, res) => {
+  const orderCount = await Order.countDocuments({});
+  if (!orderCount) {
+    res.status(500).json({
+      success: false,
+    });
+  }
+  res.send({ orderCount: orderCount });
+});
+
 
 module.exports = router;
