@@ -3,21 +3,37 @@ const { Product } = require("../models/product");
 const { Category } = require("../models/category");
 const router = express.Router();
 const mongoose = require("mongoose");
-const multer = require('multer');
+const multer = require("multer");
+
+//Validation extension
+
+const FILE_TYPE_MAP = {
+  "image/png": "png",
+  "image/jpg": "jpg",
+  "image/jpeg": "jpeg",
+};
 
 // Add image
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads')
+    const isValid = FILE_TYPE_MAP[file.mimetype];
+    let uploadError = new Error('Invalid image type');
+
+    if (isValid){
+      uploadError = null;
+    }
+    
+    cb(uploadError, "public/uploads");
   },
   filename: function (req, file, cb) {
-    const fileName = file.originalname.split(' ').join('-')
-    cb(null, fileName + '-' + Date.now())
-  }
-})
 
-const uploadOptions = multer({ storage: storage })
+    const fileName = file.originalname.split(" ").join("-");
+    const extension = FILE_TYPE_MAP[file.mimetype];
+    cb(null, `${fileName}-${Date.now()}.${extension}`);
+  },
+});
 
+const uploadOptions = multer({ storage: storage });
 
 router.get(`/`, async (req, res) => {
   //Ejemplo de query parameters http://localhost:3000/api/product?category=2345,2345
@@ -48,13 +64,13 @@ router.get(`/:id`, async (req, res) => {
   res.send(productList);
 });
 
-router.post(`/`, uploadOptions.single('image'), async (req, res) => {
+router.post(`/`, uploadOptions.single("image"), async (req, res) => {
   const category = await Category.findById(req.body.category);
 
   if (!category) return res.status(400).send("Invalid Category");
 
-  const fileName= req.file.filename;
-  const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+  const fileName = req.file.filename;
+  const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
 
   var product = new Product({
     name: req.body.name,
